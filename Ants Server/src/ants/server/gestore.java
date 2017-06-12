@@ -1,29 +1,44 @@
 package ants.server;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-
-public class gestore implements Runnable {
-    
+public class gestore implements Runnable
+{
     private Socket conn;
-    private static final String pathIPs="";
-    private static final String pathPorts="";
-    private String toSend="";
+    private Connection db;
+    Statement smt;
+    String query;
+    ResultSet rset;
     
-    BufferedReader brIPs;
-    BufferedReader brPorts;
+    String IP;
+    String Port;
     PrintWriter out;
     
-    public gestore(Socket mConn)
+    public gestore(Socket mConn) throws ClassNotFoundException
     {
         try{
+            Class.forName("com.mysql.jdbc.Driver");
+            db=DriverManager.getConnection("jdbc:mysql://localhost:3306/Ants", "root", "");
+            smt=db.createStatement();
             conn=mConn;
-            brIPs=new BufferedReader(new FileReader(pathIPs));
-            brPorts=new BufferedReader(new FileReader(pathPorts));
+            query="";
             out = new PrintWriter(conn.getOutputStream());
+            
+            IP="";
+            Port="";
         }
         catch(IOException e)
+        {
+            
+        }
+        catch(SQLException e)
         {
             
         }
@@ -34,24 +49,42 @@ public class gestore implements Runnable {
     {
         try
         {
-            if((toSend = brIPs.readLine())!= null)
+            query = "SELECT * FROM blIP";
+            
+            rset=smt.executeQuery(query);
+            
+            rset.next();
+            IP=rset.getString("IP");
+            
+            while(rset.next())
             {
-                out.println(toSend);
-                out.flush();
+                IP+=","+rset.getString("IP");
             }
 
-            if((toSend = brPorts.readLine())!= null)
+            query = "SELECT * FROM blPort";
+            
+            rset=smt.executeQuery(query);
+            
+            rset.next();
+            Port=rset.getString("Port");
+            
+            while(rset.next())
             {
-                out.println(toSend);
-                out.flush();
+                Port+=","+rset.getString("Port");
             }
-        out.close();
-        conn.close();
+            out.println(IP);
+            out.flush();
+            out.println(Port);
+            out.flush();
+            out.close();
+            conn.close();
         }
         
         catch(IOException e)
         {
         
+        } catch (SQLException ex) {
+            Logger.getLogger(gestore.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
