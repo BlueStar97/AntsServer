@@ -22,5 +22,9 @@ public class AntsServer {
             thread=new Thread(now);
             thread.start();
         }
+<<<<<<< HEAD
     }
+=======
+    }   
+>>>>>>> 0bb064b470fb058f755b9b4bf639a4fd7ce7f444
 }
