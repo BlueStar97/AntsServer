@@ -53,9 +53,8 @@ public class gestore implements Runnable
             
             rset=smt.executeQuery(query);
             
-            rset.next();
-            IP=rset.getString("IP");
-            
+            if(rset.next())
+                IP=rset.getString("IP");
             while(rset.next())
             {
                 IP+=","+rset.getString("IP");
@@ -65,8 +64,8 @@ public class gestore implements Runnable
             
             rset=smt.executeQuery(query);
             
-            rset.next();
-            Port=rset.getString("Port");
+            if(rset.next())
+                Port=rset.getString("Port");
             
             while(rset.next())
             {
